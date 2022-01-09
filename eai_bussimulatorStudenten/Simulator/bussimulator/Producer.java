@@ -2,13 +2,7 @@ package bussimulator;
 
 import java.util.Date;
 
-import javax.jms.Connection;
-import javax.jms.ConnectionFactory;
-import javax.jms.Destination;
-import javax.jms.JMSException;
-import javax.jms.MessageProducer;
-import javax.jms.Session;
-import javax.jms.TextMessage;
+import javax.jms.*;
 
 import org.apache.activemq.ActiveMQConnection;
 import org.apache.activemq.ActiveMQConnectionFactory;
@@ -16,7 +10,7 @@ import org.apache.activemq.ActiveMQConnectionFactory;
 public class Producer {
     private static String url = ActiveMQConnection.DEFAULT_BROKER_URL;
 //  TODO hier de naam van de destination invullen
-    private static String subject = "??????";
+    private static String subject = "MessageQ";
     
     private Session session;
     private Connection connection;
@@ -39,22 +33,23 @@ public class Producer {
     
     private void createConnection() throws JMSException {
        ConnectionFactory connectionFactory =
-           new ActiveMQConnectionFactory(url);
+           new ActiveMQConnectionFactory(ActiveMQConnection.DEFAULT_BROKER_URL);
 //		TODO maak de connection aan
-//       connection = connectionFactory.?????;
-//       connection.start();
+       connection = connectionFactory.createConnection();
+       connection.start();
 //		TODO maak de session aan
-//       session = ?????;
+       session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
 //		TODO maak de destination aan (gebruik de subject variabele als naam)
-//      Destination destination = ?????;
+      Destination destination = session.createQueue(subject);
 //		TODO maak de producer aan
-//      producer = ??????;  
+      producer = session.createProducer(destination);
+      producer.setDeliveryMode(DeliveryMode.NON_PERSISTENT);
        }
     
     
     private void sendTextMessage(String themessage) throws JMSException {
 //		TODO maak de message aan
-//      TextMessage msg = ??????;
-//      producer.send(msg);
+      TextMessage msg = session.createTextMessage(themessage);
+      producer.send(msg);
     }    
 }
